@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, ScrollView, RefreshControl, Pressable, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from './Icon';
-import { colors } from '../theme';
+import { useAuth } from '../context/AuthContext';
+import { useNav } from '../context/NavContext';
+import { colors, cardShadow, initials } from '../theme';
 
 // Standard scrolling page: safe-area padding, pull-to-refresh, room for the floating tab bar.
 export const Screen = ({ children, onRefresh, refreshing, bottomPad = 140 }) => {
@@ -21,15 +23,36 @@ export const Screen = ({ children, onRefresh, refreshing, bottomPad = 140 }) => 
   );
 };
 
-export const PageHeader = ({ kicker, title, right }) => (
-  <View className="px-6 mb-6 flex-row justify-between items-center">
-    <View className="shrink">
-      {kicker ? <Text className="text-slate-400 text-xs font-bold uppercase tracking-[2px]">{kicker}</Text> : null}
-      <Text className="text-2xl font-black text-slate-900 tracking-tight" numberOfLines={1}>{title}</Text>
+// Top corner: avatar that opens Profile. On the Profile page itself: a back button instead.
+export const ProfileButton = () => {
+  const { user } = useAuth();
+  const { go } = useNav();
+  return (
+    <Pressable onPress={() => go('profile')} style={cardShadow} className="h-12 w-12 rounded-2xl bg-white items-center justify-center border border-slate-100 active:opacity-70">
+      <Text className="text-slate-900 font-black">{initials(user.name)}</Text>
+    </Pressable>
+  );
+};
+
+export const PageHeader = ({ kicker, title, right, back }) => {
+  const { go } = useNav();
+  return (
+    <View className="px-6 mb-6 flex-row justify-between items-center">
+      <View className="flex-row items-center gap-3 shrink">
+        {back ? (
+          <Pressable onPress={() => go('home')} style={cardShadow} className="h-12 w-12 rounded-2xl bg-white items-center justify-center border border-slate-100 active:opacity-70">
+            <Icon name="chevron-left" size={16} color={colors.slate900} />
+          </Pressable>
+        ) : null}
+        <View className="shrink">
+          {kicker ? <Text className="text-slate-400 text-xs font-bold uppercase tracking-[2px]">{kicker}</Text> : null}
+          <Text className="text-2xl font-black text-slate-900 tracking-tight" numberOfLines={1}>{title}</Text>
+        </View>
+      </View>
+      {back ? null : right !== undefined ? right : <ProfileButton />}
     </View>
-    {right}
-  </View>
-);
+  );
+};
 
 export const SectionTitle = ({ children, right }) => (
   <View className="flex-row justify-between items-center mb-3">

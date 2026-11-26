@@ -7,7 +7,7 @@ in `.env` and the same calls go to your server with no screen changes.
 ## Conventions
 - Base URL: `EXPO_PUBLIC_API_URL`, e.g. `https://api.example.com/v1` (HTTPS only).
 - JSON in and out. Field names are `snake_case`. Dates are `YYYY-MM-DD`. Money is a plain number (no currency symbol).
-- Auth: `Authorization: Bearer <token>` on every request except `GET /companies` and `POST /auth/login`.
+- Auth: `Authorization: Bearer <token>` on every request except `GET /companyList` and `POST /auth/login`.
 - Errors: non-2xx with `{ "message": "Human readable text" }`. The app shows `message` to the user.
 - `401` on any call while logged in = token expired: the app logs the user out and shows Login.
 - Statuses (orders and deposits): `pending`, `approved`, `cancelled`.
@@ -15,8 +15,8 @@ in `.env` and the same calls go to your server with no screen changes.
 ## Auth
 | Screen | Call | Request | Response |
 |---|---|---|---|
-| Login (company list) | `GET /companies` | | `[{ "id": "1", "name": "DX Group" }]` |
-| Login | `POST /auth/login` | `{ "username": "DMS-0042", "password": "...", "company_id": "1" }` | `{ "token": "jwt...", "user": { "id": "u1", "name": "Rahim Traders", "dms_code": "DMS-0042", "company": "DX Group" } }` |
+| Login (company list) | `GET /companyList` | | `[{ "code": "DX", "name": "DX Group" }]` |
+| Login | `POST /auth/login` | `{ "username": "DMS-0042", "password": "...", "company_code": "DX" }` | `{ "token": "jwt...", "user": { "id": "u1", "name": "Rahim Traders", "dms_code": "DMS-0042", "company": "DX Group" } }` |
 | Profile > Log out | `POST /auth/logout` | | `{ "ok": true }` (optional; the app logs out locally either way) |
 
 `username` is the customer's **DMS code**. The token is stored in the device Keychain/Keystore until Logout.

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { Screen, SectionTitle, EmptyState, LoadingBlock, ErrorBlock } from '../components/Screen';
+import { Screen, SectionTitle, EmptyState, LoadingBlock, ErrorBlock, ProfileButton } from '../components/Screen';
 import StatCard from '../components/StatCard';
 import IncentiveCard from '../components/IncentiveCard';
 import OrderCard from '../components/OrderCard';
@@ -57,9 +57,7 @@ export default function HomeScreen() {
             <Text className="text-slate-400 text-xs font-bold uppercase tracking-[2px]">{user.company} • {user.dms_code}</Text>
             <Text className="text-2xl font-black text-slate-900 tracking-tight" numberOfLines={1}>{user.name}</Text>
           </View>
-          <Pressable onPress={() => { tap(); go('profile'); }} style={cardShadow} className="h-12 w-12 rounded-2xl bg-white items-center justify-center border border-slate-100">
-            <Text className="text-slate-900 font-black">{initials(user.name)}</Text>
-          </Pressable>
+          <ProfileButton />
         </View>
 
         <View className="px-6">

@@ -14,23 +14,23 @@ const fieldBase = (dark) =>
   dark ? 'bg-ink-700 text-white' : 'bg-slate-50 text-slate-900';
 
 // Text input with a left icon (and optional right element, e.g. show/hide password)
-export const IconInput = ({ icon, dark, right, error, className = '', ...props }) => (
+export const IconInput = ({ icon, dark, pill, right, error, className = '', ...props }) => (
   <View>
-    <View pointerEvents="none" className="absolute left-4 top-0 bottom-0 justify-center z-10">
+    <View pointerEvents="none" className={`absolute ${pill ? 'left-5' : 'left-4'} top-0 bottom-0 justify-center z-10`}>
       <Icon name={icon} size={14} color={dark ? '#6b6b75' : colors.slate400} />
     </View>
     <TextInput
-      placeholderTextColor={dark ? '#6b6b75' : colors.slate400}
+      placeholderTextColor={dark ? '#6b6b75' : pill ? '#8e8e93' : colors.slate400}
       selectionColor={colors.indigo500}
-      className={`${fieldBase(dark)} ${error ? 'border border-rose-500' : ''} rounded-2xl py-4 pl-11 ${right ? 'pr-12' : 'pr-4'} text-[15px] ${dark ? 'font-medium' : 'font-bold'} ${className}`}
+      className={`${pill ? 'bg-[#f2f2f2] text-[#111] rounded-full py-[18px] pl-12' : `${fieldBase(dark)} rounded-2xl py-4 pl-11`} ${error ? 'border border-rose-500' : ''} ${right ? 'pr-12' : 'pr-4'} text-[15px] ${dark || pill ? 'font-medium' : 'font-bold'} ${className}`}
       {...props}
     />
-    {right ? <View className="absolute right-3 top-0 bottom-0 justify-center">{right}</View> : null}
+    {right ? <View className="absolute right-4 top-0 bottom-0 justify-center">{right}</View> : null}
   </View>
 );
 
 // Dropdown: looks like an input, opens a list from the bottom
-export const Dropdown = ({ icon, placeholder, value, options, onChange, dark, title, loading }) => {
+export const Dropdown = ({ icon, placeholder, value, options, onChange, dark, pill, title, loading }) => {
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
   const close = () => setOpen(false);
@@ -39,12 +39,12 @@ export const Dropdown = ({ icon, placeholder, value, options, onChange, dark, ti
     <>
       <Pressable
         onPress={() => { tap(); setOpen(true); }}
-        className={`${fieldBase(dark)} rounded-2xl py-4 pl-11 pr-4 flex-row items-center justify-between`}
+        className={`${pill ? 'bg-[#f2f2f2] rounded-full py-[18px] pl-12 pr-5' : `${fieldBase(dark)} rounded-2xl py-4 pl-11 pr-4`} flex-row items-center justify-between`}
       >
-        <View pointerEvents="none" className="absolute left-4 top-0 bottom-0 justify-center">
+        <View pointerEvents="none" className={`absolute ${pill ? 'left-5' : 'left-4'} top-0 bottom-0 justify-center`}>
           <Icon name={icon} size={14} color={dark ? '#6b6b75' : colors.slate400} />
         </View>
-        <Text className={`text-[15px] font-medium shrink ${selected ? (dark ? 'text-white' : 'text-slate-900') : (dark ? 'text-[#6b6b75]' : 'text-slate-400')}`} numberOfLines={1}>
+        <Text className={`text-[15px] font-medium shrink ${selected ? (dark ? 'text-white' : pill ? 'text-[#111]' : 'text-slate-900') : (dark ? 'text-[#6b6b75]' : pill ? 'text-[#8e8e93]' : 'text-slate-400')}`} numberOfLines={1}>
           {loading ? 'Loading…' : selected ? selected.label : placeholder}
         </Text>
         <Icon name="chevron-down" size={12} color={dark ? '#6b6b75' : colors.slate400} />

@@ -6,7 +6,7 @@ import mock from './mock';
 const real = {
   // auth
   getCompanies: () => r('GET', '/companyList'),
-  login: ({ username, password, company_id }) => r('POST', '/auth/login', { body: { username, password, company_id } }),
+  login: ({ username, password, company_code }) => r('POST', '/auth/login', { body: { username, password, company_code } }),
   logout: () => r('POST', '/auth/logout'),
 
   // home

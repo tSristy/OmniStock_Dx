@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Pressable, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MeshBackground from '../components/MeshBackground';
 import Icon from '../components/Icon';
-import { Label, IconInput, Dropdown } from '../components/FormParts';
+import { IconInput, Dropdown } from '../components/FormParts';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { press, warn } from '../haptics';
+
+const SERIF = Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' });
+
+// Soft tilted squares in the background (decoration only)
+const Square = ({ style }) => (
+  <View pointerEvents="none" style={[{ position: 'absolute', backgroundColor: '#f4f4f4', borderRadius: 28 }, style]} />
+);
 
 // Login: DMS code + password + company. The session is saved on the device
 // (see AuthContext) so this screen only shows again after Logout.
@@ -29,7 +35,7 @@ export default function LoginScreen() {
   const loadCompanies = useCallback(async () => {
     setCompaniesLoading(true);
     setCompaniesError(null);
-    try { setCompanies((await api.getCompanies()).data); }
+    try { setCompanies(await api.getCompanies()); }
     catch (e) { setCompaniesError(e.message); }
     finally { setCompaniesLoading(false); }
   }, []);
@@ -55,95 +61,74 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className="flex-1 bg-ink">
-      <StatusBar style="light" />
-      <View style={StyleSheet.absoluteFill}><MeshBackground /></View>
+    <View className="flex-1 bg-white">
+      <StatusBar style="dark" />
 
-      {/* Brand */}
-      <View style={{ paddingTop: insets.top + 28 }} className="px-7">
-        <View className="h-12 w-12 rounded-2xl bg-white/20 items-center justify-center mb-4">
-          <Icon name="boxes-stacked" size={20} color="#fff" />
-        </View>
-        <Text className="text-white text-3xl font-black tracking-tight">OmniStock</Text>
-        <Text className="text-white/70 text-sm font-medium mt-1">Distributor portal</Text>
+      <Square style={{ width: 120, height: 120, right: -28, top: '22%', transform: [{ rotate: '14deg' }] }} />
+      <Square style={{ width: 96, height: 96, left: -34, top: '34%', transform: [{ rotate: '-14deg' }] }} />
+      <Square style={{ width: 120, height: 120, right: -36, top: '46%', transform: [{ rotate: '12deg' }] }} />
+
+      {/* Logo */}
+      <View style={{ paddingTop: insets.top + 14 }} className="px-6">
+        <Image source={require('../assets/dx-logo.png')} style={{ width: 64, height: 48 }} resizeMode="contain" />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1, justifyContent: 'flex-end' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           bounces={false}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          style={{ flexGrow: 0 }}
-          contentContainerStyle={{ flexGrow: 0 }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', paddingHorizontal: 24, paddingBottom: Math.max(insets.bottom, 16) + 12 }}
         >
-          <View className="bg-ink-800 rounded-t-[40px] px-6 pt-3" style={{ paddingBottom: Math.max(insets.bottom, 16) + 12 }}>
-            <View className="w-10 h-1 bg-white/20 rounded-full self-center mb-6" />
+          <Text style={{ fontFamily: SERIF, fontSize: 30, lineHeight: 36, color: '#111', textAlign: 'center', marginBottom: 28 }}>
+            Your own{'\n'}Distributor Portal
+          </Text>
 
-            <View className="items-center mb-6">
-              <View className="h-12 w-12 rounded-2xl bg-ink border border-white/10 items-center justify-center mb-4">
-                <Icon name="lock" size={16} color="#fff" />
-              </View>
-              <Text className="text-white text-[26px] font-bold">Welcome <Text className="text-blue-300">back</Text></Text>
-              <Text className="text-white/45 text-sm mt-1.5">Sign in to place orders and track your account</Text>
-            </View>
-
-            <View className="gap-4">
-              <View>
-                <Label dark>DMS code / username</Label>
-                <IconInput dark icon="user" placeholder="e.g. DMS-0042" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} returnKeyType="next" />
-              </View>
-
-              <View>
-                <Label dark>Password</Label>
-                <IconInput
-                  dark
-                  icon="lock"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPw}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="go"
-                  onSubmitEditing={submit}
-                  right={
-                    <Pressable onPress={() => setShowPw((v) => !v)} hitSlop={10}>
-                      <Icon name={showPw ? 'eye-slash' : 'eye'} size={15} color="#8b8b96" />
-                    </Pressable>
-                  }
-                />
-              </View>
-
-              <View>
-                <Label dark>Company</Label>
-                <Dropdown
-                  dark
-                  icon="building"
-                  title="Select company"
-                  placeholder="Select your company"
-                  loading={companiesLoading}
-                  value={companyCode}
-                  onChange={setCompanyCode}
-                  options={companies.map((c) => ({ value: c.code, label: c.name }))}
-                />
-                {companiesError ? (
-                  <Pressable onPress={loadCompanies} className="mt-2">
-                    <Text className="text-rose-400 text-xs">{companiesError} <Text className="underline">Retry</Text></Text>
-                  </Pressable>
-                ) : null}
-              </View>
-            </View>
-
-            {error ? <Text className="text-rose-400 text-[13px] mt-4 text-center">{error}</Text> : null}
-
-            <Pressable
-              onPress={submit}
-              disabled={busy}
-              className={`mt-6 h-[60px] bg-[#f5f5f5] rounded-full items-center justify-center active:opacity-80 ${busy ? 'opacity-70' : ''}`}
-            >
-              {busy ? <ActivityIndicator color="#0b0b0c" /> : <Text className="text-ink text-base font-bold">Sign in</Text>}
-            </Pressable>
+          <View className="gap-3">
+            <IconInput pill icon="user" placeholder="DMS code / username" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} returnKeyType="next" />
+            <IconInput
+              pill
+              icon="lock"
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPw}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="go"
+              onSubmitEditing={submit}
+              right={
+                <Pressable onPress={() => setShowPw((v) => !v)} hitSlop={10}>
+                  <Icon name={showPw ? 'eye-slash' : 'eye'} size={15} color="#8e8e93" />
+                </Pressable>
+              }
+            />
+            <Dropdown
+              pill
+              icon="building"
+              title="Select company"
+              placeholder="Select your company"
+              loading={companiesLoading}
+              value={companyCode}
+              onChange={setCompanyCode}
+              options={companies.map((c) => ({ value: c.code, label: c.name }))}
+            />
+            {companiesError ? (
+              <Pressable onPress={loadCompanies}>
+                <Text className="text-rose-600 text-xs text-center">{companiesError} <Text className="underline">Retry</Text></Text>
+              </Pressable>
+            ) : null}
           </View>
+
+          {error ? <Text className="text-rose-600 text-[13px] mt-4 text-center">{error}</Text> : null}
+
+          <Pressable
+            onPress={submit}
+            disabled={busy}
+            className={`mt-4 h-[58px] bg-[#222] rounded-full items-center justify-center active:opacity-80 ${busy ? 'opacity-70' : ''}`}
+          >
+            {busy ? <ActivityIndicator color="#fff" /> : <Text className="text-white text-[15px] font-medium">Sign in</Text>}
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

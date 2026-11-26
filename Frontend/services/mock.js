@@ -7,9 +7,9 @@ const clone = (o) => JSON.parse(JSON.stringify(o));
 const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return toYMD(d); };
 
 const COMPANIES = [
-  { id: '1', name: 'DX Group' },
-  { id: '2', name: 'Techno Bangla Ltd' },
-  { id: '3', name: 'Demo Traders' },
+  { code: 'DX', name: 'DX Group' },
+  { code: 'TBL', name: 'Techno Bangla Ltd' },
+  { code: 'DT', name: 'Demo Traders' },
 ];
 
 const PRODUCTS = [
@@ -82,10 +82,10 @@ const buildLedger = () => {
 const mock = {
   getCompanies: () => delay(clone(COMPANIES), 250),
 
-  login: async ({ username, password, company_id }) => {
+  login: async ({ username, password, company_code }) => {
     await delay(null, 600);
     if (!username || !password) throw new Error('Enter your DMS code and password.');
-    const company = COMPANIES.find((c) => c.id === company_id);
+    const company = COMPANIES.find((c) => c.code === company_code);
     if (!company) throw new Error('Select a company.');
     return { token: 'mock-token', user: { id: 'u1', name: PROFILE.name, dms_code: username.toUpperCase(), company: company.name } };
   },
