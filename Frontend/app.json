@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "OmniStock DMS+IMS",
+    "slug": "omnistock-dms-ims",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.omnistock.dmsims"
+    },
+    "android": {
+      "package": "com.omnistock.dmsims"
+    }
+  }
+}
