@@ -101,7 +101,7 @@ export default function ProfileScreen() {
       { text: 'Log out', style: 'destructive', onPress: signOut },
     ]);
   };
-
+  console.log(user);
   return (
     <Screen onRefresh={profile.refresh} refreshing={profile.refreshing}>
       <PageHeader kicker="Your account" title="Profile" back />

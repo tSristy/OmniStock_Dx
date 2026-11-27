@@ -35,7 +35,7 @@ export default function LoginScreen() {
   const loadCompanies = useCallback(async () => {
     setCompaniesLoading(true);
     setCompaniesError(null);
-    try { setCompanies(await api.getCompanies()); }
+    try { setCompanies((await api.getCompanies()).data); }
     catch (e) { setCompaniesError(e.message); }
     finally { setCompaniesLoading(false); }
   }, []);

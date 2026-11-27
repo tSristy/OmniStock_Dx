@@ -6,7 +6,7 @@ import mock from './mock';
 const real = {
   // auth
   getCompanies: () => r('GET', '/companyList'),
-  login: ({ username, password, company_code }) => r('POST', '/auth/login', { body: { username, password, company_code } }),
+  login: ({ username, password, company_code }) => r('POST', '/login', { body: { username, password, company_code } }),
   logout: () => r('POST', '/auth/logout'),
 
   // home
@@ -14,7 +14,7 @@ const real = {
   getIncentive: () => r('GET', '/incentive'),
 
   // inventory + orders
-  getProducts: (params) => r('GET', '/products', { query: params }),
+  getProducts: (params) => r('GET', '/productList', { query: params }),
   getOrders: (params) => r('GET', '/orders', { query: params }), // { days, status }
   createOrder: (order) => r('POST', '/orders', { body: order }), // { items:[{product_id,qty,unit_price}], note }
 

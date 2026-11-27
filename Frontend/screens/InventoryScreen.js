@@ -1,19 +1,23 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, PageHeader, EmptyState, LoadingBlock, ErrorBlock } from '../components/Screen';
 import ProductCard from '../components/ProductCard';
+import CartSheet from '../components/CartSheet';
 import Icon from '../components/Icon';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { useApi } from '../hooks/useApi';
 import api from '../services/api';
-import { colors, cardShadow } from '../theme';
-import { success } from '../haptics';
+import { colors, cardShadow, bigShadow, cur, NAV_HEIGHT } from '../theme';
+import { tap, success } from '../haptics';
 
 export default function InventoryScreen() {
+  const insets = useSafeAreaInsets();
   const cart = useCart();
   const { notify } = useToast();
   const [search, setSearch] = useState('');
+  const [cartOpen, setCartOpen] = useState(false);
   const products = useApi(() => api.getProducts(), []);
 
   // Only products with stock can be ordered
@@ -38,12 +42,24 @@ export default function InventoryScreen() {
     notify(`${n} × ${product.product_name} added to cart`);
   };
 
+  const barBottom = Math.max(insets.bottom, 12) + 12 + NAV_HEIGHT + 12;
+
   return (
     <View className="flex-1 bg-slate-50">
-      <Screen onRefresh={products.refresh} refreshing={products.refreshing} bottomPad={140}>
+      <Screen onRefresh={products.refresh} refreshing={products.refreshing} bottomPad={cart.lines ? 220 : 140}>
         <PageHeader
           kicker="Products available to order"
           title="Active Stock"
+          right={
+            <Pressable onPress={() => { tap(); setCartOpen(true); }} style={cardShadow} className="h-12 w-12 rounded-2xl bg-white border border-slate-100 items-center justify-center active:opacity-80">
+              <Icon name="cart-shopping" size={18} color={colors.slate900} />
+              {cart.lines > 0 ? (
+                <View className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-indigo-600 border-2 border-white items-center justify-center">
+                  <Text className="text-white text-[10px] font-black">{cart.lines}</Text>
+                </View>
+              ) : null}
+            </Pressable>
+          }
         />
 
         <View className="px-6">
@@ -75,6 +91,25 @@ export default function InventoryScreen() {
         </View>
       </Screen>
 
+      {/* Floating cart bar */}
+      {cart.lines > 0 && (
+        <Pressable
+          onPress={() => { tap(); setCartOpen(true); }}
+          style={[bigShadow(), { position: 'absolute', left: 24, right: 24, bottom: barBottom }]}
+          className="bg-slate-900 rounded-3xl px-6 py-4 flex-row items-center justify-between active:opacity-90"
+        >
+          <View>
+            <Text className="text-white/60 text-[10px] font-black uppercase tracking-[1.5px]">{cart.lines} product{cart.lines === 1 ? '' : 's'} • {cart.units} unit{cart.units === 1 ? '' : 's'}</Text>
+            <Text className="text-white text-lg font-black">{cur(cart.total)}</Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-white font-extrabold text-sm">View cart</Text>
+            <Icon name="chevron-right" size={12} color="#fff" />
+          </View>
+        </Pressable>
+      )}
+
+      <CartSheet visible={cartOpen} onClose={() => setCartOpen(false)} />
     </View>
   );
 }
